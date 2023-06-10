@@ -30,13 +30,37 @@ int main(void)
 
 	SYSTEMTIME ti;
 
+	BeginBatchDraw();
 	while (true)
 	{
+		// 绘制一个简单的表盘
+		setlinestyle(PS_SOLID, 1); // 画实线，宽度为1个像素
+		setcolor(WHITE);
+		circle(center.x, center.y, Width / 4);
+
+		// 画刻度
+		int x, y, i;
+		for (i = 0; i < 60; i++)
+		{
+			x = center.x + int(Width/4.3*sin(PI*2*i/60));
+			y = center.y - int(Width/4.3*cos(PI*2*i/60));
+
+			if (i % 15 == 0) {
+				bar(x - 5, y -5, x + 5, y + 5);
+			}
+			else if (i % 5 == 0) {
+				circle(x, y, 3);
+			}
+			else {
+				putpixel(x, y, WHITE);
+			}
+		}
+
 		GetLocalTime(&ti);
 
 		secondAngle = ti.wSecond * 2 * PI / 60;
-		minuteAngle = ti.wMinute * 2 * PI / 60;
-		hourAngle = (ti.wHour % 12) * 2 * PI / 12;
+		minuteAngle = ti.wMinute * 2 * PI / 60 + secondAngle / 60;
+		hourAngle = ti.wHour*2*PI/12 + minuteAngle / 12;
 
 		// 由角度决定秒针终点坐标
 		secondEnd.x = center.x + secondLenth * sin(secondAngle);
@@ -65,6 +89,7 @@ int main(void)
 		setcolor(RED);
 		line(center.x, center.y, hourEnd.x, hourEnd.y);
 
+		FlushBatchDraw();
 		Sleep(10); // 延时10毫秒
 
 		setcolor(BLACK);
@@ -76,6 +101,7 @@ int main(void)
 		line(center.x, center.y, hourEnd.x, hourEnd.y);
 	}
 
+	EndBatchDraw();
 	int c = _getch();
 	closegraph();
 
